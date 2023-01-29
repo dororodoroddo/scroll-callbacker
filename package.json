@@ -23,5 +23,8 @@
   "homepage": "https://github.com/dororodoroddo/scroll-callbacker#readme",
   "devDependencies": {
     "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "intersection-observer": "^0.12.2"
   }
 }
