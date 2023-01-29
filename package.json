@@ -1,0 +1,27 @@
+{
+  "name": "scroll-callbacker",
+  "version": "0.0.1",
+  "description": "adds a callback to a point/element of scrolling",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dororodoroddo/scroll-callbacker.git"
+  },
+  "keywords": [
+    "scroll",
+    "callback"
+  ],
+  "author": "dororodoroddo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dororodoroddo/scroll-callbacker/issues"
+  },
+  "homepage": "https://github.com/dororodoroddo/scroll-callbacker#readme",
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}
