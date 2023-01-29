@@ -5,9 +5,9 @@
 * 쉬운 추가와 제거
 ```
 scrollCallbacker.addTarget(target, callback)
-scrollCallbacker.removeTarget(target)
+scrollCallbacker.removeTarget(target, callback)
 ```
-짧은 코드로 등록한 루트 스크롤 엘리먼트를 대상으로 이벤트를 추가하고 제거함
+짧은 코드로 등록한 루트 스크롤 엘리먼트를 대상으로 이벤트를 추가하고 제거할 수 있다. (addEventListener와 마찬가지로 익명함수가 아닌 함수를 등록해야 지울 수 있다.)
 
 * 성능 관리
     * 타겟을 모두 제거한 경우 이벤트 리스너 혹은 옵저버가 제거됨
