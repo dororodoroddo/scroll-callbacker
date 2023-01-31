@@ -1,9 +1,9 @@
 {
   "name": "scroll-callbacker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "adds a callback to a point/element of scrolling",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "tsc"
   },
