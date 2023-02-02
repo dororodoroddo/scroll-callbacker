@@ -1,5 +1,20 @@
-import { ScrollPosition, ScrollPositionParams, ScrollTagets } from "./types";
 import 'intersection-observer';
+
+export interface ScrollPositionParams {
+    y: number;
+    // direction?: 'increase' | 'decrease' | 'both';
+    // once?: boolean;
+}
+
+export interface ScrollPosition extends ScrollPositionParams {
+    callbacks: Function[];
+}
+
+export type ScrollTagets = {
+    [ target in string ]: Function;
+}
+
+const TARGET_ELEMENT_KEY = 'scroll-callbacker-id';
 
 function removeItemFromArray<ArrayItem = any, Target = any>(arr: ArrayItem[], item: Target, f: (item: ArrayItem, target: Target) => boolean): void {
     let index = -1;
@@ -60,12 +75,12 @@ export class ScrollCallbacker {
     }
 
     /** 이벤트 리스너 방식 */
-    private scrollPositions: ScrollPosition[] = [ { y: -10000, callbacks: [] } ];     // default
+    private scrollPositions: ScrollPosition[] = [ { y: -Infinity, callbacks: [] }, { y: Infinity, callbacks: [] } ];     // default
     private currentIndex = 0;
     private timeoutNumber = -1;
 
     private addEventlistenerTarget(target: ScrollPositionParams, callback: Function): void {
-        if (this.scrollPositions.length === 1) {
+        if (this.scrollPositions.length === 2) {
             this.initEventListener();
         }
 
@@ -91,7 +106,6 @@ export class ScrollCallbacker {
         
         const sorting = () => {
             this.scrollPositions.sort((a, b) => a.y - b.y);
-            console.log(this.scrollPositions);
         }
 
         window.clearTimeout(this.timeoutNumber);
@@ -112,7 +126,7 @@ export class ScrollCallbacker {
             return false;
         })
 
-        if (this.scrollPositions.length === 1) {
+        if (this.scrollPositions.length === 2) {
             this.disableEventListener();
         }
     }
@@ -128,24 +142,17 @@ export class ScrollCallbacker {
 
     private scrollEventHandler = (e: Event) => {
         const y = (e.target as HTMLElement).scrollTop;
-        const len = this.scrollPositions.length;
-        while (this.currentIndex < len - 1 && this.scrollCompare(y, this.scrollPositions[this.currentIndex + 1])) {
+
+        while (this.scrollCompare(y, this.scrollPositions[this.currentIndex + 1])) {
             ++this.currentIndex;
             this.scrollPositions[this.currentIndex].callbacks.forEach((callback) => callback());
         }
         
         while (!this.scrollCompare(y, this.scrollPositions[this.currentIndex])) {
-            this.scrollPositions[this.currentIndex].callbacks.forEach((callback) => callback());
             --this.currentIndex;
         }
     }
 
-    /**
-     * 같은 인덱스보다 작아질 경우 내려감 (항상 같은 인덱스 보다 같거나 큼 유지)
-     * 인덱스가 올라갈 때 실행 - default
-     * 내려갈때 실행하거나 둘다 실행 가능
-     * 차후 마진 추가 등을 위해 분리
-     */
     private scrollCompare(y: number, position: ScrollPosition): boolean {
         if (y - position.y >= 0) {
             return true;
@@ -155,8 +162,9 @@ export class ScrollCallbacker {
     }
     
     /** 인터섹션 옵저버 방식 */
-    private rootMargin = '0';
-    private threshold: number | number[] = 1.0;
+    public rootMargin = '0px';
+    public threshold: number | number[] = 1.0;
+    private elId = 0;
     private scrollTargets: ScrollTagets = {};
     private observer: IntersectionObserver | null = null;
 
@@ -164,11 +172,25 @@ export class ScrollCallbacker {
         if (this.observer === null) {
             this.observer = this.initIntersectionObserver();
         }
+        let callbackId = target.getAttribute(TARGET_ELEMENT_KEY);
+        
+        if (!callbackId) {
+            callbackId = `${target.nodeName}-${++this.elId}`;
+            target.setAttribute(TARGET_ELEMENT_KEY, callbackId);
+        }
+
+        this.scrollTargets[callbackId] = callback;
 
         this.observer.observe(target);
     }
 
     private removeIntersectionObserverTarget(target: HTMLElement, callback: Function): void {
+        if (this.observer === null) {
+            throw new Error('no target')
+        }
+
+        this.observer.unobserve(target);
+        delete this.scrollTargets[ target.getAttribute(TARGET_ELEMENT_KEY) || '' ];
 
         if (Object.keys(this.scrollTargets).length === 0) {
             this.disableIntersectionObserver();
@@ -195,7 +217,10 @@ export class ScrollCallbacker {
 
     private intersectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
-            console.log(entry)
+            if (entry.isIntersecting) {
+                this.scrollTargets[entry.target.getAttribute(TARGET_ELEMENT_KEY) || '']?.();
+            }
+
         })
     }
 }
