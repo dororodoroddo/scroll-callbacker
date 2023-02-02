@@ -28,6 +28,7 @@ scrollCallbacker.removeTarget(target, callback)
 * 대상이 없으면 intersectionObserver와 이벤트 리스너가 모두 자동으로 해제된다.
 
 ## 추가 예정(?)
+* 아래로 지나갈 때/위로 지나갈 때 방향 설정
 * once - 한번 실행 후 제거
 * 이벤트리스너 타겟에 대한 옵션들
 * 오류 발생시 자동 콜백 제거
