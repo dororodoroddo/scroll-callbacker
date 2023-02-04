@@ -2,3 +2,5 @@ node_modules
 src
 .git*
 .DS_Store
+package-lock.json
+tsconfig.json
