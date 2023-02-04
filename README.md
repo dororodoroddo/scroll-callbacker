@@ -32,6 +32,7 @@ scrollCallbacker.removeTarget(target, callback)
 
 
 ## history
+* 1.1.5 - add parameter at callback functions
 * 1.1.4 - fix bug when set a x with y at the same time
 * 1.1.3 - tsc build....
 * 1.1.1 - remove unnecessary files on npm
