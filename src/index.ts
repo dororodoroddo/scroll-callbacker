@@ -15,7 +15,7 @@ export type ScrollTagets = {
     [ target in string ]: Function;
 }
 
-const TARGET_ELEMENT_KEY = 'scroll-callbacker-id';
+export const TARGET_ELEMENT_KEY = 'scroll-callbacker-id';
 
 function removeItemFromArray<ArrayItem = any, Target = any>(arr: ArrayItem[], item: Target, f: (item: ArrayItem, target: Target) => boolean): void {
     let index = -1;
