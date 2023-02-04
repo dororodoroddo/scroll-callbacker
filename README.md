@@ -24,3 +24,8 @@ scrollCallbacker.removeTarget(target, callback)
 
 ## end
 * making issue is welcome.
+
+
+## history
+* 1.1.0 - add horizontal scroll detect
+* 1.0.0 - published
