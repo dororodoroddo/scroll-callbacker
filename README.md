@@ -4,6 +4,11 @@ A library that fires events at specific elements or scroll positions
 
 ## usage
 ```
+<script src="https://unpkg.com/scroll-callbacker@1.1.4/index.js"></script>
+```
+* using npm or download directly from a CDN via a script tag
+
+```
 const sc = new ScrollCallbacker(rootEl);
 ```
 * Set the scrolling eliment when initialization.
