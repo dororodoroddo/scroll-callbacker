@@ -148,7 +148,7 @@ export class ScrollCallbacker {
     }
 
     private xEventHandler = (e: Event) => {
-        const x = (e.target as HTMLElement).scrollTop;
+        const x = (e.target as HTMLElement).scrollLeft;
 
         while (this.scrollCompare(x, this.xScrollPositions[this.xIndex + 1])) {
             ++this.xIndex;
