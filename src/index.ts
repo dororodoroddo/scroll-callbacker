@@ -1,12 +1,13 @@
 import 'intersection-observer';
 
 export interface ScrollPositionParams {
-    y: number;
-    // direction?: 'increase' | 'decrease' | 'both';
+    position: number;
+    direction?: 'y' | 'x';
+    // callbackDirection?: 'increase' | 'decrease' | 'both';
     // once?: boolean;
 }
 
-export interface ScrollPosition extends ScrollPositionParams {
+export interface ScrollPosition extends Omit<ScrollPositionParams, 'direction'> {
     callbacks: Function[];
 }
 
@@ -75,46 +76,52 @@ export class ScrollCallbacker {
     }
 
     /** 이벤트 리스너 방식 */
-    private scrollPositions: ScrollPosition[] = [ { y: -Infinity, callbacks: [] }, { y: Infinity, callbacks: [] } ];     // default
-    private currentIndex = 0;
+    private xScrollPositions: ScrollPosition[] = [ { position: -Infinity, callbacks: [] }, { position: Infinity, callbacks: [] } ];     // default
+    private yScrollPositions: ScrollPosition[] = [ { position: -Infinity, callbacks: [] }, { position: Infinity, callbacks: [] } ];     // default
+    private xIndex = 0;
+    private yIndex = 0;
     private timeoutNumber = -1;
 
     private addEventlistenerTarget(target: ScrollPositionParams, callback: Function): void {
-        if (this.scrollPositions.length === 2) {
-            this.initEventListener();
+        const direction = target.direction || 'y';
+        const queue = this[`${direction}ScrollPositions`];
+        const len = queue.length;
+        if (len === 2) {
+            this.initEventListener(direction);
         }
 
         let index = -1;
-        const len = this.scrollPositions.length;
         for (let i = 0 ; i < len ; ++i) {
-            const position = this.scrollPositions[i];
+            const position = queue[i];
             
-            if (position.y === target.y) {
+            if (position.position === target.position) {
                 index = i;
                 break;
             }
         };
 
         if (index === -1) {
-            this.scrollPositions.push({
+            queue.push({
                 ...target,
                 callbacks: [ callback ],
             });
-        } else {
-            this.scrollPositions[index].callbacks.push(callback);
-        }
-        
-        const sorting = () => {
-            this.scrollPositions.sort((a, b) => a.y - b.y);
-        }
 
-        window.clearTimeout(this.timeoutNumber);
-        this.timeoutNumber = window.setTimeout(sorting, 0);
+            const sorting = () => {
+                queue.sort((a, b) => a.position - b.position);
+            }
+    
+            window.clearTimeout(this.timeoutNumber);
+            this.timeoutNumber = window.setTimeout(sorting, 0);
+        } else {
+            queue[index].callbacks.push(callback);
+        }
     }
 
     private removeEventlistenerTarget(target: ScrollPositionParams, callback: Function): void {
-        removeItemFromArray(this.scrollPositions, target, (compareTarget, item) => {
-            if (compareTarget.y !== item.y) {
+        const direction = target.direction || 'y';
+        const queue = this[`${direction}ScrollPositions`];
+        removeItemFromArray(queue, target, (compareTarget, item) => {
+            if (compareTarget.position !== item.position) {
                 return false;
             }
 
@@ -126,35 +133,48 @@ export class ScrollCallbacker {
             return false;
         })
 
-        if (this.scrollPositions.length === 2) {
-            this.disableEventListener();
+        if (queue.length === 2) {
+            this.disableEventListener(direction);
         }
     }
 
-    private initEventListener(): void {
-        this.currentIndex = 0;
-        this.$el.addEventListener('scroll', this.scrollEventHandler, { passive: true })
+    private initEventListener(direction: 'x' | 'y'): void {
+        this[`${direction}Index`] = 0;
+        this.$el.addEventListener('scroll', this[`${direction}EventHandler`], { passive: true })
     }
 
-    private disableEventListener(): void {
-        this.$el.removeEventListener('scroll', this.scrollEventHandler)
+    private disableEventListener(direction: 'x' | 'y'): void {
+        this.$el.removeEventListener('scroll', this[`${direction}EventHandler`])
     }
 
-    private scrollEventHandler = (e: Event) => {
-        const y = (e.target as HTMLElement).scrollTop;
+    private xEventHandler = (e: Event) => {
+        const x = (e.target as HTMLElement).scrollTop;
 
-        while (this.scrollCompare(y, this.scrollPositions[this.currentIndex + 1])) {
-            ++this.currentIndex;
-            this.scrollPositions[this.currentIndex].callbacks.forEach((callback) => callback());
+        while (this.scrollCompare(x, this.xScrollPositions[this.xIndex + 1])) {
+            ++this.xIndex;
+            this.xScrollPositions[this.xIndex].callbacks.forEach((callback) => callback());
         }
         
-        while (!this.scrollCompare(y, this.scrollPositions[this.currentIndex])) {
-            --this.currentIndex;
+        while (!this.scrollCompare(x, this.xScrollPositions[this.xIndex])) {
+            --this.xIndex;
         }
     }
 
-    private scrollCompare(y: number, position: ScrollPosition): boolean {
-        if (y - position.y >= 0) {
+    private yEventHandler = (e: Event) => {
+        const y = (e.target as HTMLElement).scrollTop;
+
+        while (this.scrollCompare(y, this.yScrollPositions[this.yIndex + 1])) {
+            ++this.yIndex;
+            this.yScrollPositions[this.yIndex].callbacks.forEach((callback) => callback());
+        }
+        
+        while (!this.scrollCompare(y, this.yScrollPositions[this.yIndex])) {
+            --this.yIndex;
+        }
+    }
+
+    private scrollCompare(pos: number, position: ScrollPosition): boolean {
+        if (pos - position.position >= 0) {
             return true;
         }
 
