@@ -80,7 +80,8 @@ export class ScrollCallbacker {
     private yScrollPositions: ScrollPosition[] = [ { position: -Infinity, callbacks: [] }, { position: Infinity, callbacks: [] } ];     // default
     private xIndex = 0;
     private yIndex = 0;
-    private timeoutNumber = -1;
+    private xTimeoutNumber = -1;
+    private yTimeoutNumber = -1;
 
     private addEventlistenerTarget(target: ScrollPositionParams, callback: Function): void {
         const direction = target.direction || 'y';
@@ -110,8 +111,8 @@ export class ScrollCallbacker {
                 queue.sort((a, b) => a.position - b.position);
             }
     
-            window.clearTimeout(this.timeoutNumber);
-            this.timeoutNumber = window.setTimeout(sorting, 0);
+            window.clearTimeout(this[`${direction}TimeoutNumber`]);
+            this[`${direction}TimeoutNumber`] = window.setTimeout(sorting, 0);
         } else {
             queue[index].callbacks.push(callback);
         }
@@ -140,11 +141,11 @@ export class ScrollCallbacker {
 
     private initEventListener(direction: 'x' | 'y'): void {
         this[`${direction}Index`] = 0;
-        this.$el.addEventListener('scroll', this[`${direction}EventHandler`], { passive: true })
+        this.$el.addEventListener('scroll', this[`${direction}EventHandler`], { passive: true });
     }
 
     private disableEventListener(direction: 'x' | 'y'): void {
-        this.$el.removeEventListener('scroll', this[`${direction}EventHandler`])
+        this.$el.removeEventListener('scroll', this[`${direction}EventHandler`]);
     }
 
     private xEventHandler = (e: Event) => {

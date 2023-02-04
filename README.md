@@ -27,6 +27,7 @@ scrollCallbacker.removeTarget(target, callback)
 
 
 ## history
+* 1.1.4 - fix bug when set a x with y at the same time
 * 1.1.3 - tsc build....
 * 1.1.1 - remove unnecessary files on npm
 * 1.1.0 - add horizontal scroll detect
