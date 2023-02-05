@@ -73,16 +73,26 @@ export class ScrollCallbacker {
             return;
         }
 
-        this.addEventlistenerTarget(target as ScrollPositionParams, callback as EventListenerCallback);
+        if (typeof (target as ScrollPositionParams).position === 'number') {
+            this.addEventlistenerTarget(target as ScrollPositionParams, callback as EventListenerCallback);
+            return;
+        }
+
+        throw new Error('not valid target');
     }
 
-    public removeTarget(target: HTMLElement | ScrollPositionParams, callback: IntersectionCallback | EventListenerCallback): void {
+    public removeTarget(target: HTMLElement | ScrollPositionParams, callback: Function): void {
         if (isElement(target)) {
             this.removeIntersectionObserverTarget(target as HTMLElement, callback as IntersectionCallback);
             return;
         }
+        
+        if (typeof (target as ScrollPositionParams).position === 'number') {
+            this.removeEventlistenerTarget(target as ScrollPositionParams, callback as EventListenerCallback);
+            return;
+        }
 
-        this.removeEventlistenerTarget(target as ScrollPositionParams, callback as EventListenerCallback);
+        throw new Error('not valid target');        
     }
 
     /** 이벤트 리스너 방식 */
@@ -94,7 +104,10 @@ export class ScrollCallbacker {
     private yTimeoutNumber = -1;
 
     private addEventlistenerTarget(target: ScrollPositionParams, callback: EventListenerCallback): void {
-        const direction = target.direction || 'y';
+        const direction = target.direction  ?? 'y';
+        if (direction !== 'x' && direction !== 'y') {
+            throw new Error('not valid direction');
+        }
         const queue = this[`${direction}ScrollPositions`];
         const len = queue.length;
         if (len === 2) {
@@ -129,7 +142,7 @@ export class ScrollCallbacker {
     }
 
     private removeEventlistenerTarget(target: ScrollPositionParams, callback: EventListenerCallback): void {
-        const direction = target.direction || 'y';
+        const direction = target.direction  ?? 'y';
         const queue = this[`${direction}ScrollPositions`];
         removeItemFromArray(queue, target, (compareTarget, item) => {
             if (compareTarget.position !== item.position) {
