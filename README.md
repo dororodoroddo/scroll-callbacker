@@ -32,6 +32,7 @@ scrollCallbacker.removeTarget(target, callback)
 
 
 ## history
+* 1.1.6 - refactoring, modifing error exception, change parameter types, add a function to find the current index, add destroyAll function.
 * 1.1.5 - add parameter at callback functions
 * 1.1.4 - fix bug when set a x with y at the same time
 * 1.1.3 - tsc build....
